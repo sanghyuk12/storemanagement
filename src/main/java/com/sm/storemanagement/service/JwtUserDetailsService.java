@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-@Service("userDetailsService")
-public class UserService implements UserDetailsService, Serializable{
+@Service
+public class JwtUserDetailsService implements UserDetailsService, Serializable{
     private static final long serialVersionUID = 2311752522558328973L;
 
     @Autowired
@@ -36,6 +36,9 @@ public class UserService implements UserDetailsService, Serializable{
             throws UsernameNotFoundException, DataAccessException {
 
         UserDTO userDTO = getUserDTO(userName);
+        if(userDTO == null) {
+            throw new UsernameNotFoundException("User not found with username: " + userName);
+        }
 
         List<GrantedAuthority> authorities = new ArrayList<>();
         return new User(userDTO.getUserId(), userDTO.getPassWord(), authorities);

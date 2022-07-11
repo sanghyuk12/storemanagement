@@ -2,7 +2,7 @@ package com.sm.storemanagement.controller;
 
 import com.sm.storemanagement.jwt.JwtRequest;
 import com.sm.storemanagement.jwt.JwtResponse;
-import com.sm.storemanagement.service.UserService;
+import com.sm.storemanagement.service.JwtUserDetailsService;
 import com.sm.storemanagement.util.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,13 +24,13 @@ public class JwtAuthenticaiotnController {
     private JwtTokenUtil jwtTokenUtil;
 
     @Autowired
-    private UserService userService;
+    private JwtUserDetailsService jwtUserDetailsService;
 
     @RequestMapping( value = "/api/authentication", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
         authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 
-        final UserDetails userDetails = userService.loadUserByUsername(authenticationRequest.getUsername());
+        final UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(authenticationRequest.getUsername());
 
         final String token = jwtTokenUtil.generateToken(userDetails);
 
