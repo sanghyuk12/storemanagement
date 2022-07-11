@@ -19,7 +19,7 @@ public class MariaDBConfig {
         sessionFactory.setDataSource(dataSource);
 
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-        sessionFactory.setMapperLocations(resolver.getResources("classpath:sqlmapper/user/*.xml"));
+        sessionFactory.setMapperLocations(resolver.getResources("classpath:sqlmapper/**/*-mapper.xml"));
 
         Resource myBatisConfig = new PathMatchingResourcePatternResolver().getResource("classpath:mybatis-config.xml");
         sessionFactory.setConfigLocation(myBatisConfig);

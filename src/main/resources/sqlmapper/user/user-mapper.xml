@@ -4,7 +4,33 @@
     <select id="selectUser" resultType="com.sm.storemanagement.dto.UserDTO">
         SELECT /* User 조회 */
             *
-        FROM
-            sm_user
+        FROM sm_user
+        WHERE user_id = #{userName}
     </select>
+
+    <insert id="join">
+        INSERT INTO sm_user
+        (
+             user_no,
+             user_id,
+             use_at,
+             password,
+             store_nm
+        )
+        VALUES
+        (
+            (SELECT
+                CASE
+                    WHEN B.user_no is null
+                        THEN '00001'
+                    ELSE
+                        CONCAT('0000', MAX(CAST(B.user_no as unsigned))+1)
+                END FROM sm_user as B
+            ),
+             #{userId},
+             'Y',
+             #{password},
+             #{storeNm}
+        )
+    </insert>
 </mapper>

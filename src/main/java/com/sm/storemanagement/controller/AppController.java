@@ -1,20 +1,37 @@
 package com.sm.storemanagement.controller;
 
-import com.sm.storemanagement.dto.UserDTO;
 import com.sm.storemanagement.mapper.UserMapper;
+import com.sm.storemanagement.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 public class AppController {
-    @Autowired
-    private UserMapper userMapper;
 
-    @GetMapping("/api/hello")
-    public List<UserDTO> test() {
-        return userMapper.selectUser();
+    @Autowired
+    private UserService userService;
+
+
+    @RequestMapping(value = "/api/joinMember", method = {RequestMethod.POST})
+    public Map<String, Object> join(@RequestParam Map<String, Object> requestParam) {
+        Map<String ,Object> resultMap = new HashMap<>();
+
+        String password = requestParam.get("password").toString();
+
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+        requestParam.put("password", passwordEncoder.encode(password));
+
+        if (userService.join(requestParam)) {
+           resultMap.put("resultCode", "S0001");
+        } else {
+          resultMap.put("resultCOde", "E0001");
+        }
+
+        return resultMap;
     }
 }
