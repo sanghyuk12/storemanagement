@@ -5,8 +5,13 @@ import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import {useState} from "react";
 import axios from "axios";
+import { useNavigate } from 'react-router-dom'
+import AuthenticationSerivce from "./service/AuthenticationSerivce";
+let history = useNavigate();
 
-function Login(){
+const Login = (prop) => {
+    const navigate = useNavigate(''); // <-- use hook in component
+
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
@@ -19,12 +24,16 @@ function Login(){
     }
     const onSubmit = () => {
 
-        axios.post('http://localhost:8080/authenticate', {
-            username,
-            password
-        }).then(res => console.log(res))
+        AuthenticationSerivce.executeJwtAuthenticationService(username, password)
+        .then((res) => {
+            AuthenticationSerivce.registerSuccessfulLoginForJwt(username, res.data.token);
+            navigate('/')
 
+        }).catch((err) => {
+           console.log(err);
+        });
     }
+
     return (
         <div>
             <Container className="panel">
