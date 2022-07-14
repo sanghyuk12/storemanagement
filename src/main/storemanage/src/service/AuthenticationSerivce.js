@@ -18,9 +18,9 @@ class AuthenticationService {
         console.log("===registerSuccessfulLoginForJwt===")
         localStorage.setItem('token', token);
         localStorage.setItem('authenticatedUser', username);
-        // sessionStorage.setItem('authenticatedUser', username)
-        //this.setupAxiosInterceptors(this.createJWTToken(token))
-        this.setupAxiosInterceptors();
+        sessionStorage.setItem('authenticatedUser', username)
+        this.setupAxiosInterceptors(this.createJWTToken(token))
+        // this.setupAxiosInterceptors();
     }
 
     createJWTToken(token) {
@@ -28,6 +28,7 @@ class AuthenticationService {
     }
 
     setupAxiosInterceptors() {
+        // axios 요청시 header에 token 값 추가
         axios.interceptors.request.use(
             config => {
                 const token = localStorage.getItem('token');
@@ -46,6 +47,7 @@ class AuthenticationService {
         //sessionStorage.removeItem('authenticatedUser');
         localStorage.removeItem("authenticatedUser");
         localStorage.removeItem("token");
+        return true;
     }
 
     isUserLoggedIn() {

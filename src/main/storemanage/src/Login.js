@@ -5,12 +5,9 @@ import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import {useState} from "react";
 import axios from "axios";
-import { useNavigate } from 'react-router-dom'
 import AuthenticationSerivce from "./service/AuthenticationSerivce";
-let history = useNavigate();
 
-const Login = (prop) => {
-    const navigate = useNavigate(''); // <-- use hook in component
+const Login = (props) => {
 
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -27,8 +24,7 @@ const Login = (prop) => {
         AuthenticationSerivce.executeJwtAuthenticationService(username, password)
         .then((res) => {
             AuthenticationSerivce.registerSuccessfulLoginForJwt(username, res.data.token);
-            navigate('/')
-
+            window.location.href = '/';
         }).catch((err) => {
            console.log(err);
         });
