@@ -47,7 +47,7 @@ class AuthenticationService {
         //sessionStorage.removeItem('authenticatedUser');
         localStorage.removeItem("authenticatedUser");
         localStorage.removeItem("token");
-        return true;
+        window.location.href = '/';
     }
 
     isUserLoggedIn() {

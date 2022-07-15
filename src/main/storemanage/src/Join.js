@@ -5,8 +5,10 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import axios from "axios";
+import { useNavigate } from 'react-router-dom';
 
 function Join(){
+    const navigate = useNavigate();
     const [userId,setUserId] = useState('');
     const [storeName,setStoreName] = useState('');
     const [password,setPassword] = useState('');
@@ -27,14 +29,11 @@ function Join(){
         formData.append("storeNm", storeName);
         formData.append("password", password);
 
-        axios.post("api/joinMember", formData).then(res => alert(res)).catch(error => console.log(error));
+        axios.post("api/joinMember", formData)
+            .then(res => alert("회원가입이 완료되었습니다."))
+            .catch(error => console.log(error));
+        navigate('/login');
 
-        console.log({
-            userId,
-            storeName,
-            password,
-            passwordCheck
-        });
     };
 
     // Coustom Hook 이전
