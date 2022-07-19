@@ -12,7 +12,8 @@ import Product from "./pages/Product";
 import Fixed from "./pages/Fixed";
 import Calculate from "./pages/Calculate";
 import Menu from "./pages/Menu";
-
+import jQuery from "jquery";
+import $ from "jquery";
 
 const App = () => {
     AuthenticationSerivce.setupAxiosInterceptors();
