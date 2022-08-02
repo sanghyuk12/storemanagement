@@ -1,13 +1,15 @@
 package com.sm.storemanagement.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Array;
+import java.util.*;
 
 @RestController
 public class ProductController {
@@ -26,5 +28,22 @@ public class ProductController {
         resultMap.add(responseMap);
         resultMap.add(responseMap);
         return resultMap;
+    }
+
+    @RequestMapping(value = "/api/updateProduct", method = {RequestMethod.POST})
+    public String updateProduct (
+            @RequestParam(required = false) Map<String, Object> param) throws ParseException {
+        JSONParser parser = new JSONParser();
+//        String data = param.get("data").toString();
+        JSONArray obj = new JSONArray();
+
+
+//        try {
+////            obj = (JSONArray) parser.parse(data);
+//        }catch (ParseException e) {
+//            System.out.printf("변환실패");
+//            e.printStackTrace()99;
+//        }
+        return "success";
     }
 }
