@@ -15,16 +15,8 @@ function Product() {
     const [gridApi, setGridApi] = useState(null);
     const [gridColumnApi, setGridColumnApi] = useState(null);
     const [rowData, setRowData] = useState(null);
-    const [selectedRows, setSelectedRows] = useState(
-        {
-            productNm: ""
-            ,division: ""
-            ,division1: ""
-            ,price: ""
-        }
-    );
     const [btndisabled, setBtnDisabled] = useState(true);
-
+    var updatedData = [];
     const formData = new FormData;
 
     const excelDownLoad = () => {
@@ -51,54 +43,24 @@ function Product() {
 
     };
 
-    const onSelectionChanged = () => {
-        const data = gridApi.getSelectedRows();
-
-        if (data.length > 0) {
-            setBtnDisabled(false);
-        } else {
-            setBtnDisabled(true);
-        }
-        // formData.append("data", JSON.stringify(gridApi.getSelectedRows()));
-        setSelectedRows({...selectedRows});
-    };
-
     const onCellValueChanged = (e) => {
-        console.log("changed", e.data);
+        if(!e.data.status) e.data.status = 'modify';
+        gridApi.updateRowData({update: [e.data]});
+        setBtnDisabled(false);
     };
-
-    //맵을 문자로
-    function replacer(key, value) {
-        if (value instanceof Map) { //형식 확인
-            return {
-                dataType: 'Map', //정의
-                value: Array.from(value.entries()), //entries 함수를 통해 배열로 변경(이중)
-            };
-        } else {
-            return value;
-        }
-    }
-
-    function reviver(key, value) {
-        if (typeof value === 'object' && value !== null) {
-            if (value.dataType === 'Map') {  //정의된 형태가 Map이라면
-                return new Map(value.value); //새로이 생성
-            }
-        }
-        return value;
-    }
-
 
     // 저장
     const onClickSave = (e) => {
-        onSelectionChanged();
-        const data = selectedRows;
+        gridApi.forEachNode(function (node) {
+            if(node.data.status){
+                updatedData.push(node.data);
+            }
+        });
+
+        formData.append("gridData", JSON.stringify(updatedData));
+        const gridData = JSON.stringify(updatedData);
         debugger;
-
-        // formData.append("data", JSON.stringify(data))
-        console.log(JSON.stringify(data));
-
-        axios.post("/api/updateProduct", data)
+        axios.post("/api/updateProduct", formData)
             .then((res) => {
                 onGridReady();
             })
@@ -111,15 +73,30 @@ function Product() {
 
     //행추가
     const onClickInsertRow = () => {
+        const prodNoArr = [];
+        gridApi.forEachNode(function (node) {
+            prodNoArr.push(parseInt(node.data.prodNo));
+        });
+
         let newData = {
-            productNm: ''
+            prodNo: Math.max.apply(Math,prodNoArr) + 1
+            , prodNm: ''
             , division: ''
             , division1: ''
             , price: ''
+            , status: 'add'
         }
         gridApi.updateRowData({add: [newData]});
-
     };
+    function onClickDeleteRow() {
+        var selectedRows = gridApi.getSelectedRows();
+        selectedRows.forEach( function(selectedRow, index) {
+            selectedRow.status='remove';
+            updatedData.push(selectedRow);
+            gridApi.updateRowData({remove: [selectedRow]});
+            setBtnDisabled(false);
+        });
+    }
 
     return (
         <>
@@ -140,10 +117,10 @@ function Product() {
                         <Button variant="contained" onClick={onClickInsertRow}>
                             행추가
                         </Button>
-                        <Button variant="contained" disabled={btndisabled}>
+                        <Button variant="contained" onClick={onClickDeleteRow}>
                             삭제
                         </Button>
-                        <Button variant="contained" disabled={btndisabled} value={selectedRows} onClick={onClickSave}>
+                        <Button variant="contained" disabled={btndisabled} onClick={onClickSave}>
                             저장
                         </Button>
                         <Button variant="contained" onClick={excelDownLoad}>
@@ -168,65 +145,29 @@ function Product() {
                             defaultToolPanel: "",
                         }}
                         onGridReady={onGridReady}
-                        onSelectionChanged={onSelectionChanged}
                         onCellEditingStopped={(e) => {
                             onCellValueChanged(e);
                         }}
                     >
-                        {/*<AgGridColumn*/}
-                        {/*    headerName="..HELLO."*/}
-                        {/*    headerCheckboxSelection={true}*/}
-                        {/*    checkboxSelection={true}*/}
-                        {/*    floatingFilter={false}*/}
-                        {/*    // suppressMenu={true}*/}
-                        {/*    minWidth={50}*/}
-                        {/*    maxWidth={50}*/}
-                        {/*    width={50}*/}
-                        {/*    flex={0}*/}
-                        {/*    resizable={false}*/}
-                        {/*    sortable={false}*/}
-                        {/*    editable={true}*/}
-                        {/*    filter={false}*/}
-                        {/*    suppressColumnsToolPanel={false}*/}
-                        {/*/>*/}
-                        {/*<AgGridColumn headerName="Participant">*/}
-                        <AgGridColumn headerName="재료명" field="productNm" minWidth={170}/>
+                        <AgGridColumn headerName="제품번호" field="prodNo" minWidth={170}
+                                      headerCheckboxSelection={true}
+                                      checkboxSelection={true}
+                                      floatingFilter={false}
+                            // suppressMenu={true}
+                                      minWidth={50}
+                                      maxWidth={50}
+                                      width={50}
+                                      flex={0}
+                                      resizable={false}
+                                      sortable={false}
+                                      editable={true}
+                                      filter={false}
+                                      suppressColumnsToolPanel={false}/>
+                        <AgGridColumn headerName="재료명" field="prodNm" minWidth={170}/>
                         <AgGridColumn headerName="완재품/재료" field="division" minWidth={150}/>
                         <AgGridColumn headerName="용량/개수" field="division1" minWidth={150}/>
                         <AgGridColumn headerName="금액" field="price" minWidth={150}/>
-                        {/*</AgGridColumn>*/}
-                        {/*<AgGridColumn field="금액" />*/}
-                        {/*<AgGridColumn headerName="Medals">*/}
-                        {/*    <AgGridColumn*/}
-                        {/*        field="total"*/}
-                        {/*        columnGroupShow="closed"*/}
-                        {/*        filter="agNumberColumnFilter"*/}
-                        {/*        width={120}*/}
-                        {/*        flex={0}*/}
-                        {/*    />*/}
-                        {/*    <AgGridColumn*/}
-                        {/*        field="gold"*/}
-                        {/*        columnGroupShow="open"*/}
-                        {/*        filter="agNumberColumnFilter"*/}
-                        {/*        width={100}*/}
-                        {/*        flex={0}*/}
-                        {/*    />*/}
-                        {/*    <AgGridColumn*/}
-                        {/*        field="silver"*/}
-                        {/*        columnGroupShow="open"*/}
-                        {/*        filter="agNumberColumnFilter"*/}
-                        {/*        width={100}*/}
-                        {/*        flex={0}*/}
-                        {/*    />*/}
-                        {/*    <AgGridColumn*/}
-                        {/*        field="bronze"*/}
-                        {/*        columnGroupShow="open"*/}
-                        {/*        filter="agNumberColumnFilter"*/}
-                        {/*        width={100}*/}
-                        {/*        flex={0}*/}
-                        {/*    />*/}
-                        {/*</AgGridColumn>*/}
-                        {/*<AgGridColumn field="year" filter="agNumberColumnFilter" />*/}
+
                     </AgGridReact>
                 </div>
             </div>
