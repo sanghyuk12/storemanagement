@@ -9,6 +9,7 @@ import "ag-grid-community/dist/styles/ag-theme-alpine.css";
 import $ from "jquery";
 import axios from "axios";
 import AuthenticationSerivce from "../service/AuthenticationSerivce";
+const updatedData = [];
 
 function Product() {
 
@@ -16,7 +17,6 @@ function Product() {
     const [gridColumnApi, setGridColumnApi] = useState(null);
     const [rowData, setRowData] = useState(null);
     const [btndisabled, setBtnDisabled] = useState(true);
-    var updatedData = [];
     const formData = new FormData;
 
     const excelDownLoad = () => {
@@ -45,12 +45,14 @@ function Product() {
 
     const onCellValueChanged = (e) => {
         if(!e.data.status) e.data.status = 'modify';
-        gridApi.updateRowData({update: [e.data]});
+        gridApi.applyTransaction({ update: [e.data] });
         setBtnDisabled(false);
     };
 
     // 저장
     const onClickSave = (e) => {
+
+        // console.log(gridApi.applyTransaction())
         gridApi.forEachNode(function (node) {
             if(node.data.status){
                 updatedData.push(node.data);
@@ -58,8 +60,7 @@ function Product() {
         });
 
         formData.append("gridData", JSON.stringify(updatedData));
-        const gridData = JSON.stringify(updatedData);
-        debugger;
+
         axios.post("/api/updateProduct", formData)
             .then((res) => {
                 onGridReady();
@@ -90,10 +91,13 @@ function Product() {
     };
     function onClickDeleteRow() {
         var selectedRows = gridApi.getSelectedRows();
+
         selectedRows.forEach( function(selectedRow, index) {
-            selectedRow.status='remove';
-            updatedData.push(selectedRow);
+            const _selectedRow = selectedRow;
             gridApi.updateRowData({remove: [selectedRow]});
+            // gridApi.applyTransaction({ remove: selectedRow });
+            _selectedRow.status='remove';
+            updatedData.push(_selectedRow);
             setBtnDisabled(false);
         });
     }
